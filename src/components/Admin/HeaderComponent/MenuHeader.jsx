@@ -14,7 +14,10 @@ export default class MenuHeader extends Component {
         return (
             <div className="menuHeaderBox">
                 <div className="content">{ this.props.menu }</div>
-                <div className="border-bottom"></div>
+                <div className="border-bottom">
+                    <div className="border-bottom-left"></div>
+                    <div className="border-bottom-right"></div>
+                </div>
             </div>
         )
     }

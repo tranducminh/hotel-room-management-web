@@ -3,24 +3,46 @@
     padding: 10px;
     height: 100%;
     cursor: pointer;
-    
     .border-bottom{
-        background-color:#fff;
-        width: 0%;
-        height: 5px;
-        margin-top: 15px;
+        display:flex;
+        flex-direction: row;
+        justify-content: center;
+        .border-bottom-right{
+            background-color:#fff;
+            width: 0px;
+            height: 5px;
+            margin-top: 15px;
+            display: inline-block;
+            float: left;
+        }
+        .border-bottom-left{
+            float:right;
+            background-color:#fff;
+            width: 0px;
+            height: 5px;
+            margin-top: 15px;
+            display: inline-block;
+        }
     }
-    .content {
-        
-        color: black;
+    .content:hover+.border-bottom .border-bottom-left{
+        animation: border-menu 0.5s;
     }
-    git commit -m "Commiting changes":hover .border-bottom{
-        width: 100%;
+    .content:hover+.border-bottom .border-bottom-left{
+        transition-delay: 0.5s;
+        width: 15px;
+    }
+    .content:hover+.border-bottom .border-bottom-right{
+        transition-delay: 0.5s;
+        width: 15px;
+    }
+    
+    .content:hover+.border-bottom .border-bottom-right{
+        animation: border-menu 0.5s;
     }
 
     @keyframes border-menu{
-        from {width: 0%;}
-        to {width: 100%;}
+        from {width: 0px;}
+        to {width: 15px;}
     }
 
 }
