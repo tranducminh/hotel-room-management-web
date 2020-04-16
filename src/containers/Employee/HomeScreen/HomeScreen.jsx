@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import LoginPage from '../../Login/Login'
 
 import './HomeScreen.scss'
 
@@ -10,9 +11,7 @@ export default class HomeScreen extends Component {
 
   render() {
     return (
-      <h1 className='employeeHomeScreenContainer'>
-        HomeScreen
-      </h1>
+      <LoginPage/>
     )
   }
 }

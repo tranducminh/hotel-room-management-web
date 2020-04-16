@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import HeaderComponent from '../../../components/Admin/HeaderComponent/HeaderComponent.jsx'
 
 import './HomeScreen.scss'
 
@@ -10,9 +11,9 @@ export default class HomeScreen extends Component {
 
   render() {
     return (
-      <h1 className="adminHomeScreenContainer">
-        Admin Screen
-      </h1>
+      <div className="adminHomeScreenContainer">
+        <HeaderComponent/>
+      </div>
     )
   }
 }

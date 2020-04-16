@@ -1,0 +1,26 @@
+.menuHeaderBox{
+    margin: 0px 20px;
+    padding: 10px;
+    height: 100%;
+    cursor: pointer;
+    
+    .border-bottom{
+        background-color:#fff;
+        width: 0%;
+        height: 5px;
+        margin-top: 15px;
+    }
+    .content {
+        
+        color: black;
+    }
+    git commit -m "Commiting changes":hover .border-bottom{
+        width: 100%;
+    }
+
+    @keyframes border-menu{
+        from {width: 0%;}
+        to {width: 100%;}
+    }
+
+}
