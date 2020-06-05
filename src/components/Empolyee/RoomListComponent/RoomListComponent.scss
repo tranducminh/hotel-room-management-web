@@ -1,0 +1,19 @@
+.Room-List{
+    width: 100%;
+    
+    #Title{
+        text-align: center;
+    }
+    table{
+        width: 100%;
+    }
+    table thead tr th{
+        background-color: darkblue;
+        color: white;
+        height: 50px;
+        border:1px solid darkblue;
+    }
+    table tr {
+        text-align: center;
+    }
+}
