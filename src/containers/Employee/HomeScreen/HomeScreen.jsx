@@ -3,6 +3,8 @@ import { Tabs } from 'antd';
 import RoomList from '../../../components/Employee/RoomList'
 import CustomerForm from '../../../components/Employee/CustomerForm'
 import './HomeScreen.scss'
+import RoomDataDetailProvider from './../Context/RoomDataDetailProvider';
+import ModalDataRoom from './../../../components/Employee/ModalDataRoom';
 
 const { TabPane } = Tabs;
 
@@ -12,13 +14,13 @@ export default class HomeScreen extends Component {
       <>
         <Tabs tabPosition="left">
           <TabPane tab="Floor 1" key="1">
-            <FloorScreen />
+            <FloorScreen floor='1' />
           </TabPane>
           <TabPane tab="Floor 2" key="2">
-            <FloorScreen />
+            <FloorScreen floor='2' />
           </TabPane>
           <TabPane tab="Floor 3" key="3">
-            <FloorScreen />
+            <FloorScreen floor='3' />
           </TabPane>
         </Tabs>
 
@@ -29,18 +31,29 @@ export default class HomeScreen extends Component {
 
 class FloorScreen extends Component {
   state = { visible: false }
+  constructor(props){
+    super(props);
+    
+  }
+  componentDidMount = () => {
+    console.log(this.props.floor);
+  }
+  bookRoom = (visible) => {
+    this.setState({ visible: visible })
+  }
   render() {
-    const bookRoom = () => {
-      this.setState({ visible: true })
-    }
+    
+    const {floor} = this.props;
+    
     return (
-      <>
+      <RoomDataDetailProvider>
         <h1>Ready room</h1>
-        <RoomList bookRoom={bookRoom} />
+        <RoomList readyRoom floor={floor} />
         <h1>Coming room</h1>
-        <RoomList bookRoom={bookRoom} />
-        <CustomerForm visible={this.state.visible} />
-      </>
+        <RoomList readyRoom={false} floor={floor} /> 
+        <CustomerForm visible={this.state.visible} bookRoom={this.bookRoom} />
+        <ModalDataRoom/>
+      </RoomDataDetailProvider>
     )
   }
 }

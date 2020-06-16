@@ -1,11 +1,15 @@
 import React, { Component } from 'react'
 import { Drawer, Form, Button, Col, Row, Input, DatePicker, Checkbox } from 'antd'
+import Axios from 'axios';
+import { Context } from './../../containers/Employee/Context/RoomDataDetailProvider';
+import moment from 'moment' 
 import "./Employee.scss";
 const CheckboxGroup = Checkbox.Group;
-const plainOptions = ['Apple', 'Pear', 'Orange'];
+
+//const plainOptions = ['Apple', 'Pear', 'Orange'];
 const defaultCheckedList = ['Apple', 'Orange'];
 
-export default class CustomerForm extends Component {
+class CustomerForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -14,22 +18,39 @@ export default class CustomerForm extends Component {
       indeterminate: true,
       checkAll: false,
       fullName: '',
+      dateOfBirth: '',
       email: '',
-      phone: '',
+      identificationNumber: '',
+      phoneNumber: '',
       timeStart: '',
       timeEnd: '',
+      plainOptions: [],
+      listService: []
     };
   }
-
+  componentDidMount = () => {
+    Axios.get('http://localhost:8080/services').then(
+      data => this.setState({
+        plainOptions: data.data.map(service=>service.serviceName),
+        listService: data.data 
+      })
+    )
+  }
   onChange = checkedList => {
+    const { plainOptions, listService} = this.state;
     this.setState({
       checkedList,
+      listService: listService.map(service => 
+        (checkedList.indexOf(service.serviceName) >= 0)? {...service, checked: true}: {...service, checked: false} 
+      ),
       indeterminate: !!checkedList.length && checkedList.length < plainOptions.length,
       checkAll: checkedList.length === plainOptions.length,
     });
   };
 
   onCheckAllChange = e => {
+    const { plainOptions } = this.state;
+
     this.setState({
       checkedList: e.target.checked ? plainOptions : [],
       indeterminate: false,
@@ -39,14 +60,41 @@ export default class CustomerForm extends Component {
 
 
   onClose = () => {
-    this.setState({
-      visible: false,
-    });
+    this.props.setFormVisible(false);
   };
 
   onSubmit = () => {
+    const { fullName , dateOfBirth, phoneNumber, identificationNumber} = this.state;
     this.onClose();
-    console.log(this.state)
+    console.log({ fullName , dateOfBirth, phoneNumber, identificationNumber} )
+    Axios.post('http://localhost:8080/customers',{
+      fullName , dateOfBirth, phoneNumber, identificationNumber
+    }).then(data => {
+      console.log(data.data);
+    });
+
+    Axios.put(`http://localhost:8080/rooms/${this.props.room.id}/INUSE`).then(data => {
+      console.log(data.data);
+    });
+
+    const { listService } = this.state; 
+    console.log(listService);
+    const lsServicePromise = listService.reduce((ArrRes, service) => {
+      if(service.checked === true) 
+        ArrRes.push(Axios.post('http://localhost:8080/booking-services',{
+          roomId: this.props.room.id,
+          serviceId: service.id,
+        }));
+        return ArrRes;
+     },[]);
+
+     Promise.all(lsServicePromise).then(lsRes => {
+       console.log(lsRes);
+     })
+
+    
+
+    // console.log(this.state)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -59,12 +107,14 @@ export default class CustomerForm extends Component {
   }
 
   render() {
+    const { plainOptions } = this.state;
     return (
+
       <Drawer
-        title="Room 1"
+        title={`Room ${this.props.room.roomNumber}`}
         width={720}
         onClose={this.onClose}
-        visible={this.state.visible}
+        visible={this.props.formVisible}
         bodyStyle={{ paddingBottom: 80 }}
         footer={
           <div
@@ -112,24 +162,50 @@ export default class CustomerForm extends Component {
               <Form.Item
                 name="phoneNumber"
                 label="Phone Number"
-                rules={[{ required: true, message: 'Please enter phone number' }]}
+                rules={[{ required: true, message: 'Please enter phoneNumber number' }]}
               >
-                <Input placeholder="Please enter phone number" onChange={value => this.setState({phone: value.target.value})}/>
+                <Input placeholder="Please enter phone number" onChange={value => this.setState({phoneNumber: value.target.value})}/>
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                name="dateTime"
-                label="DateTime"
+                name="date Time"
+                label="Date Time"
                 rules={[{ required: true, message: 'Please choose the dateTime' }]}
               >
                 <DatePicker.RangePicker
                   style={{ width: '100%' }}
                   getPopupContainer={trigger => trigger.parentNode}
+                  selected={moment()}
                   onChange={(date, dateString) => { this.setState({timeStart: dateString[0], timeEnd: dateString[1]}) }}
                 />
               </Form.Item>
             </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="identificationNumber"
+                label="Identification Number"
+                rules={[{ required: true, message: 'Please enter dentification number' }]}
+              >
+                <Input placeholder="Please enter identification number" onChange={value => this.setState({identificationNumber: value.target.value})}/>
+              </Form.Item>
+            </Col>
+
+            <Col span={12}>
+              <Form.Item
+                name="dateTime"
+                label="Date Time"
+                rules={[{ required: true, message: 'Please choose the dateTime' }]}
+              >
+                <DatePicker
+                  style={{ width: '100%' }}
+                  onChange={(date, dateString) => { this.setState({dateOfBirth: dateString}) }}
+                />
+              </Form.Item>
+            </Col>
+           
           </Row>
           <Row gutter={16}>
             <Col span={12}>
@@ -177,3 +253,16 @@ export default class CustomerForm extends Component {
     )
   }
 }
+export default props => (
+  <Context.Consumer>
+    {({ setModalVisible, setRoom, room, setFormVisible, formVisible}) => (
+      <CustomerForm setModalVisible={setModalVisible}
+      setRoom={setRoom} 
+      room={room}
+      setFormVisible={setFormVisible}
+      formVisible={formVisible}
+
+      {...props} />
+    )}
+  </Context.Consumer>
+);
