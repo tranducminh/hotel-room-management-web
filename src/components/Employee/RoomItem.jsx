@@ -11,39 +11,31 @@ class RoomItem extends Component {
   }
 
   render() {
-    const { room, setModalVisible, setFormVisible, setRoom } = this.props;
+    const { roomREADY, setModalVisible, setFormVisible, } = this.props;
     const onClick = () => {
       
-      if(room.roomStatus !== 'READY') {
-        
-        setModalVisible(true);
-      }
-      else{
-        setFormVisible(true);
-      }
-      this.props.setRoom(this.props.room);
-        
-     
+      this.props.setRoomREADY(roomREADY);
+      setFormVisible(true);
     }
    
     const button = () => (
       <Button type="primary" ghost size={30} onClick={onClick}>
-        {room.roomStatus !== 'READY'? 'Checkout':'Book now'}
+        {'Book now'}
       </Button>
     )
    
     return (
-      <Card size="small" title={`Room ${room.roomNumber}`} extra={button()} style={{ width: 300 }}>
-        <p>Status: {room.roomStatus}</p>
-        <p>Capacity: {room.capacity} people</p>
+      <Card size="small" title={`Room ${roomREADY.roomNumber}`} extra={button()} style={{ width: 300 }}>
+        <p>Status: {roomREADY.roomStatus}</p>
+        <p>Capacity: {roomREADY.capacity} people</p>
       </Card>
     )
   }
 }
 export default props => (
   <Context.Consumer>
-    {({ setModalVisible, setRoom, formVisible, setFormVisible }) => (
-      <RoomItem setModalVisible={setModalVisible} setRoom={setRoom} formVisible={formVisible}  setFormVisible={setFormVisible} {...props} />
+    {({ setModalVisible, setRoomREADY, formVisible, roomREADY, setFormVisible }) => (
+      <RoomItem setModalVisible={setModalVisible} roomREADY={roomREADY} setRoomREADY={setRoomREADY} formVisible={formVisible}  setFormVisible={setFormVisible} {...props} />
     )}
   </Context.Consumer>
 );

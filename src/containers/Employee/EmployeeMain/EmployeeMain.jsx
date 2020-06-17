@@ -6,6 +6,8 @@ import "./EmployeeMain.scss"
 
 import HomeScreen from '../HomeScreen/HomeScreen'
 import NotFoundScreen from '../../NotFoundScreen/NotFoundScreen'
+import RoomDataDetailProvider from './../Context/RoomDataDetailProvider';
+
 import Menu from '../../../components/Employee/Menu';
 
 const { Header, Content, Sider } = Layout;
@@ -17,21 +19,22 @@ export default class EmployeeMain extends Component {
 
   render() {
     return (
-      <Layout>
-        <Header className="header">
-          <span className="logo" >Future</span>
-          <Menu />
-        </Header>
+      <RoomDataDetailProvider>
         <Layout>
-          <Content className="content">
-            <Switch>
-              <Route exact path="/" component={HomeScreen} />
-              <Route component={NotFoundScreen} />
-            </Switch>
-          </Content>
+          <Header className="header">
+            <span className="logo" >Future</span>
+            <Menu />
+          </Header>
+          <Layout>
+            <Content className="content">
+              <Switch>
+                <Route exact path="/" component={HomeScreen} />
+                <Route component={NotFoundScreen} />
+              </Switch>
+            </Content>
+          </Layout>
         </Layout>
-      </Layout>
-
+      </RoomDataDetailProvider>
     )
   }
 }

@@ -1,14 +1,30 @@
 import React, { Component } from 'react'
 import { Tabs } from 'antd';
-import RoomList from '../../../components/Employee/RoomList'
+import RoomListREADY from '../../../components/Employee/RoomListREADY'
+import RoomListINUSE from '../../../components/Employee/RoomListINUSE'
+
 import CustomerForm from '../../../components/Employee/CustomerForm'
 import './HomeScreen.scss'
-import RoomDataDetailProvider from './../Context/RoomDataDetailProvider';
+import Axios from "axios";
+
+import { Context } from './../Context/RoomDataDetailProvider';
 import ModalDataRoom from './../../../components/Employee/ModalDataRoom';
 
 const { TabPane } = Tabs;
 
-export default class HomeScreen extends Component {
+class HomeScreen extends Component {
+  componentDidMount = () =>{
+    Axios.get("http://localhost:8080/rooms/status/ready")
+    .then(data => {
+      this.props.setRoomListREADY(data.data);
+    });
+
+    Axios.get("http://localhost:8080/booking-rooms")
+    .then(data => {
+      console.log(data.data);
+      this.props.setRoomListINUSE(data.data);
+    })
+  }
   render() {
     return (
       <>
@@ -28,6 +44,18 @@ export default class HomeScreen extends Component {
     )
   }
 }
+export default props => (
+  <Context.Consumer>
+    {({
+      setRoomListINUSE, setRoomListREADY,
+    }) => (
+      <HomeScreen 
+      setRoomListINUSE={setRoomListINUSE}
+      setRoomListREADY={setRoomListREADY}
+      {...props} />
+    )}
+  </Context.Consumer>
+);
 
 class FloorScreen extends Component {
   state = { visible: false }
@@ -46,14 +74,14 @@ class FloorScreen extends Component {
     const {floor} = this.props;
     
     return (
-      <RoomDataDetailProvider>
+      <>
         <h1>Ready room</h1>
-        <RoomList readyRoom floor={floor} />
+        <RoomListREADY floor={floor} />
         <h1>Coming room</h1>
-        <RoomList readyRoom={false} floor={floor} /> 
+        <RoomListINUSE floor={floor} /> 
         <CustomerForm visible={this.state.visible} bookRoom={this.bookRoom} />
         <ModalDataRoom/>
-      </RoomDataDetailProvider>
+      </>
     )
   }
 }

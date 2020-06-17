@@ -13,6 +13,7 @@ class CustomerForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: false,
       visible: false,
       checkedList: defaultCheckedList,
       indeterminate: true,
@@ -64,16 +65,26 @@ class CustomerForm extends Component {
   };
 
   onSubmit = () => {
-    const { fullName , dateOfBirth, phoneNumber, identificationNumber} = this.state;
-    this.onClose();
+    const { fullName , dateOfBirth, phoneNumber, email, identificationNumber, timeStart, timeEnd} = this.state;
+    this.setState({loading : true});
     console.log({ fullName , dateOfBirth, phoneNumber, identificationNumber} )
     Axios.post('http://localhost:8080/customers',{
-      fullName , dateOfBirth, phoneNumber, identificationNumber
-    }).then(data => {
-      console.log(data.data);
+      fullName , dateOfBirth, phoneNumber, identificationNumber, email
+    }).then(customer => {
+      Axios.post(`http://localhost:8080/booking-rooms`,{
+        roomId: this.props.roomREADY.id,
+        customerId: customer.data.id,
+        timeStart,
+        timeEnd
+      }).then(bookingRoom => {
+      console.log(bookingRoom.data);
+      this.setState({loading:false});
+      this.props.setFormVisible(false);
+    });
+      console.log(customer  .data);
     });
 
-    Axios.put(`http://localhost:8080/rooms/${this.props.room.id}/INUSE`).then(data => {
+    Axios.put(`http://localhost:8080/rooms/${this.props.roomREADY.id}/INUSE`).then(data => {
       console.log(data.data);
     });
 
@@ -82,7 +93,7 @@ class CustomerForm extends Component {
     const lsServicePromise = listService.reduce((ArrRes, service) => {
       if(service.checked === true) 
         ArrRes.push(Axios.post('http://localhost:8080/booking-services',{
-          roomId: this.props.room.id,
+          roomId: this.props.roomREADY.id,
           serviceId: service.id,
         }));
         return ArrRes;
@@ -107,11 +118,11 @@ class CustomerForm extends Component {
   }
 
   render() {
-    const { plainOptions } = this.state;
+    const { plainOptions, loading } = this.state;
     return (
 
       <Drawer
-        title={`Room ${this.props.room.roomNumber}`}
+        title={`Room ${this.props.roomREADY.roomNumber}`}
         width={720}
         onClose={this.onClose}
         visible={this.props.formVisible}
@@ -125,7 +136,7 @@ class CustomerForm extends Component {
             <Button onClick={this.onClose} style={{ marginRight: 8 }}>
               Cancel
               </Button>
-            <Button onClick={this.onSubmit} type="primary">
+            <Button onClick={this.onSubmit}  loading={loading} type="primary">
               Submit
               </Button>
           </div>
@@ -169,18 +180,17 @@ class CustomerForm extends Component {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="date Time"
-                label="Date Time"
+                name="dateOfBirth"
+                label="Date of birth"
                 rules={[{ required: true, message: 'Please choose the dateTime' }]}
               >
-                <DatePicker.RangePicker
+                <DatePicker
                   style={{ width: '100%' }}
-                  getPopupContainer={trigger => trigger.parentNode}
-                  selected={moment()}
-                  onChange={(date, dateString) => { this.setState({timeStart: dateString[0], timeEnd: dateString[1]}) }}
+                  onChange={(date, dateString) => { this.setState({dateOfBirth: dateString}) }}
                 />
               </Form.Item>
             </Col>
+            
           </Row>
           <Row gutter={16}>
             <Col span={12}>
@@ -195,13 +205,15 @@ class CustomerForm extends Component {
 
             <Col span={12}>
               <Form.Item
-                name="dateTime"
+                name="date Time"
                 label="Date Time"
                 rules={[{ required: true, message: 'Please choose the dateTime' }]}
               >
-                <DatePicker
+                <DatePicker.RangePicker
                   style={{ width: '100%' }}
-                  onChange={(date, dateString) => { this.setState({dateOfBirth: dateString}) }}
+                  getPopupContainer={trigger => trigger.parentNode}
+                  selected={moment()}
+                  onChange={(date, dateString) => { this.setState({timeStart: dateString[0], timeEnd: dateString[1]}) }}
                 />
               </Form.Item>
             </Col>
@@ -255,14 +267,16 @@ class CustomerForm extends Component {
 }
 export default props => (
   <Context.Consumer>
-    {({ setModalVisible, setRoom, room, setFormVisible, formVisible}) => (
-      <CustomerForm setModalVisible={setModalVisible}
-      setRoom={setRoom} 
-      room={room}
-      setFormVisible={setFormVisible}
-      formVisible={formVisible}
+    {({ setModalVisible, setRoomREADY, roomREADY, setFormVisible, formVisible}) => (
+      <CustomerForm 
+        setModalVisible={setModalVisible}
+        setRoomREADY={setRoomREADY} 
+        roomREADY={roomREADY}
+        setFormVisible={setFormVisible}
+        formVisible={formVisible}
 
-      {...props} />
-    )}
+        {...props} 
+      />
+    )}  
   </Context.Consumer>
 );
